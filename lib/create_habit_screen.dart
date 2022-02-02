@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'models.dart';
+import 'package:hive/hive.dart';
 
 class CreateHabitScreen extends StatefulWidget {
   const CreateHabitScreen({Key? key}) : super(key: key);
@@ -11,11 +13,21 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
 
+  late Box<Habit> habitBox;
+
   String goalValue = 'Per Week';
   List<String> categoryChips = [
     'Work',
     'Code',
   ];
+
+  Color selectedColor = const Color(0xFFFE2C91);
+
+  @override
+  void initState() {
+    super.initState();
+    habitBox = Hive.box<Habit>('Habits');
+  }
 
   @override
   void dispose() {
@@ -60,6 +72,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                   ),
                 ),
                 _buildCategoryChips(),
+                _buildColorPicker(),
                 const Spacer(),
                 _buildCreateButton(context),
               ],
@@ -169,7 +182,8 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         ),
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            // print(_nameController.text);
+            habitBox.add(
+                Habit(title: _nameController.text, accentColor: selectedColor));
             Navigator.pop(context);
           }
         },
@@ -252,5 +266,62 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
             )),
       ],
     );
+  }
+
+  ListView _buildColorPicker() {
+    List<Color> categoryColors = [
+      const Color(0xFFFE2C91),
+      const Color(0xFF2C4EFE),
+      const Color(0xFF2AEB8E),
+      const Color(0xFFFEE81E),
+      const Color(0xFF6D38E0),
+      const Color(0xFFFF5F5F),
+      const Color(0xffF5F5F5),
+      const Color(0xffF521FA),
+      const Color(0xffFF8F3F),
+      const Color(0xff74EEFF)
+    ];
+    return ListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Color',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+          Wrap(
+            children: categoryColors.map((color) {
+              return InkWell(
+                borderRadius: BorderRadius.circular(10.0),
+                onTap: () {
+                  setState(() {
+                    selectedColor = color;
+                  });
+                },
+                child: Container(
+                  height: 47,
+                  width: 47,
+                  margin: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color,
+                      border: color == selectedColor
+                          ? Border.all(
+                              color: color == const Color(0xffF5F5F5)
+                                  ? Colors.grey
+                                  : Colors.white,
+                              width: 5.0)
+                          : null),
+                ),
+              );
+            }).toList(),
+          ),
+        ]);
   }
 }

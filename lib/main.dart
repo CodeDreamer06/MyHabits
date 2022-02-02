@@ -1,8 +1,19 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import './create_habit_screen.dart';
-import './HomeScreen.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
+import 'models.dart';
+import 'create_habit_screen.dart';
+import 'home_screen.dart';
 
-void main() => runApp(const MyHabits());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Directory directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path);
+  Hive.registerAdapter(HabitAdapter());
+  await Hive.openBox<Habit>('Habits');
+  runApp(const MyHabits());
+}
 
 class MyHabits extends StatelessWidget {
   const MyHabits({Key? key}) : super(key: key);

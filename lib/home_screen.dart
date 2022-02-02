@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'models.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
-  final List<HabitItem> habits = const [
-    HabitItem(
-      title: 'Exercise',
-      accentColor: Color(0xffFE2C91),
-    ),
-    HabitItem(
-      title: 'School',
-      accentColor: Color(0xff2C4EFE),
-    ),
-    HabitItem(
-      title: 'Social Media',
-      accentColor: Color(0xff2AEB8E),
-    ),
-    HabitItem(
-      title: 'Chess',
-      accentColor: Color(0xffFEE81E),
-    ),
-  ];
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Box<Habit> habitBox;
+
+  @override
+  void initState() {
+    habitBox = Hive.box<Habit>('Habits');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,22 +65,31 @@ class HomeScreen extends StatelessWidget {
                   BottomNavigationBarItem(
                       icon: Icon(Icons.local_gas_station), label: 'Logs'),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.graphic_eq), label: 'Statistics'),
+                      icon: Icon(Icons.history), label: 'History'),
                 ]),
           ),
         ),
       ),
-      body: ListView(children: habits),
+      body: ValueListenableBuilder(
+        valueListenable: habitBox.listenable(),
+        builder: (context, box, _) {
+          return ListView.builder(
+            itemCount: habitBox.length,
+            itemBuilder: (BuildContext context, int index) {
+              return HabitItem(habitBox.getAt(index)!);
+            },
+          );
+        },
+      ),
+      // ListView(children: habits.map((habit) => HabitItem(habit)).toList()),
     );
   }
 }
 
 class HabitItem extends StatelessWidget {
-  final String title;
-  final Color accentColor;
+  final Habit item;
 
-  const HabitItem({Key? key, required this.title, required this.accentColor})
-      : super(key: key);
+  const HabitItem(this.item, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -102,13 +108,13 @@ class HabitItem extends StatelessWidget {
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10.0),
                   bottomLeft: Radius.circular(10.0)),
-              color: accentColor,
+              color: item.accentColor,
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 20.0),
             child: Text(
-              title,
+              item.title,
               style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
