@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:toggle_switch/toggle_switch.dart';
 import 'models.dart';
 import 'package:hive/hive.dart';
+
+enum GoalType { target, limit }
 
 class CreateHabitScreen extends StatefulWidget {
   const CreateHabitScreen({Key? key}) : super(key: key);
@@ -22,6 +25,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   ];
 
   Color selectedColor = const Color(0xFFFE2C91);
+  GoalType goalType = GoalType.target;
 
   @override
   void initState() {
@@ -38,8 +42,9 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   @override
   Widget build(BuildContext context) {
     AppBar appBar = AppBar(
-      title: const Text(
+      title: Text(
         'Create a habit',
+        style: Theme.of(context).textTheme.headline1,
       ),
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -61,14 +66,11 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                 const SizedBox(height: 20),
                 _buildGoalInputBox(),
                 const SizedBox(height: 20),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Text(
                     'Categories',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.headline3,
                   ),
                 ),
                 _buildCategoryChips(),
@@ -88,12 +90,11 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Text(
             "Name",
-            style: TextStyle(
-                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+            style: Theme.of(context).textTheme.headline3,
           ),
         ),
         TextFormField(
@@ -116,6 +117,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
               contentPadding: const EdgeInsets.all(15.0),
               hintStyle: const TextStyle(color: Colors.white24),
               border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
                   borderRadius: BorderRadius.circular(15.0))),
         ),
       ],
@@ -196,12 +198,32 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Goal',
-            style: TextStyle(
-                color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Goal',
+                style: Theme.of(context).textTheme.headline3,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ToggleSwitch(
+                  totalSwitches: 2,
+                  labels: const ['Target', 'Limit'],
+                  radiusStyle: true,
+                  cornerRadius: 20.0,
+                  minWidth: 85.0,
+                  inactiveBgColor: const Color(0xffC0A4FF).withAlpha(15),
+                  initialLabelIndex: 0,
+                  animate: true,
+                  onToggle: (index) {
+                    goalType = index == 0 ? GoalType.target : GoalType.limit;
+                  },
+                ),
+              ),
+            ],
           ),
         ),
         Container(
@@ -285,14 +307,11 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          const Padding(
-            padding: EdgeInsets.all(8.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
               'Color',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600),
+              style: Theme.of(context).textTheme.headline3,
             ),
           ),
           Wrap(

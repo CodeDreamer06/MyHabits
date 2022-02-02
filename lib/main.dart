@@ -28,7 +28,23 @@ class MyHabits extends StatelessWidget {
         '/create-habit': (context) => const CreateHabitScreen()
       },
       theme: ThemeData(
-          canvasColor: const Color(0xff181A2E), fontFamily: 'Poppins'),
+          brightness: Brightness.dark,
+          primaryColor: const Color(0xff6D38E0),
+          canvasColor: const Color(0xff181A2E),
+          fontFamily: 'Poppins',
+          textTheme: const TextTheme(
+              headline1: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 24,
+                  color: Colors.white),
+              headline2: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20),
+              headline3: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600))),
     );
   }
 }

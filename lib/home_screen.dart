@@ -23,9 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Habits',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.headline1,
         ),
         backgroundColor: Colors.transparent,
         actions: const [
@@ -81,7 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      // ListView(children: habits.map((habit) => HabitItem(habit)).toList()),
     );
   }
 }
@@ -115,10 +114,7 @@ class HabitItem extends StatelessWidget {
             padding: const EdgeInsets.only(left: 20.0),
             child: Text(
               item.title,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20),
+              style: Theme.of(context).textTheme.headline2,
             ),
           ),
         ],
