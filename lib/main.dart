@@ -44,7 +44,11 @@ class MyHabits extends StatelessWidget {
               headline3: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
-                  fontWeight: FontWeight.w600))),
+                  fontWeight: FontWeight.w600),
+              subtitle1: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500))),
     );
   }
 }

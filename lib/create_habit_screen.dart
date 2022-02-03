@@ -30,12 +30,14 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   @override
   void initState() {
     super.initState();
+    Hive.openBox<Habit>('Habits');
     habitBox = Hive.box<Habit>('Habits');
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    habitBox.close();
     super.dispose();
   }
 
