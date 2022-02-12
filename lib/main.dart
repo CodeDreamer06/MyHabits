@@ -1,19 +1,12 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'models.dart';
+import 'package:myhabits/database/db_service.dart';
 import 'create_habit_screen.dart';
 import 'home_screen.dart';
 import 'add_log_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Directory directory = await getApplicationDocumentsDirectory();
-  Hive.init(directory.path);
-  Hive.registerAdapter(HabitAdapter());
-  Hive.registerAdapter(LogAdapter());
-  await Hive.openBox<Habit>('Habits');
+  await DbService().init();
   runApp(const MyHabits());
 }
 

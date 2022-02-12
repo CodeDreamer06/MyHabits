@@ -3,7 +3,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:myhabits/settings_screen.dart';
 import 'package:myhabits/statistics_screen.dart';
 import 'history_screen.dart';
-import 'models.dart';
+import 'database/models.dart';
 import 'habit_item.dart';
 import 'circular_progress_bar.dart';
 

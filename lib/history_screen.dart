@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
-import 'models.dart';
+import 'database/models.dart';
 import 'circular_progress_bar.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -59,6 +59,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       padding: const EdgeInsets.only(top: 10, left: 16.0, bottom: 16),
       child: Column(
         children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+              'History',
+              style: Theme.of(context).textTheme.headline1,
+            ),
+          ),
+          const SizedBox(height: 5.0),
           const Align(
             alignment: Alignment.topLeft,
             child: Text('Today',

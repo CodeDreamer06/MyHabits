@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myhabits/button.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'models.dart';
+import 'database/models.dart';
 import 'package:hive/hive.dart';
 
 enum GoalType { target, limit }

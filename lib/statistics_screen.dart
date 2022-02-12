@@ -10,6 +10,15 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          'Statistics',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+      ),
+    );
   }
 }

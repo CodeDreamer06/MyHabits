@@ -3,7 +3,7 @@ import 'package:myhabits/button.dart';
 import 'package:myhabits/habit_item.dart';
 
 import 'package:hive/hive.dart';
-import 'models.dart';
+import 'database/models.dart';
 
 class AddLogScreen extends StatefulWidget {
   const AddLogScreen({Key? key}) : super(key: key);

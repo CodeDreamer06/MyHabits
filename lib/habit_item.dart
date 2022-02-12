@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'models.dart';
+import 'database/models.dart';
 
 class HabitItemChild extends StatelessWidget {
   final Habit item;
