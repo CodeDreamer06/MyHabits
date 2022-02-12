@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:myhabits/settings_screen.dart';
+import 'package:myhabits/statistics_screen.dart';
+import 'history_screen.dart';
 import 'models.dart';
+import 'habit_item.dart';
+import 'circular_progress_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -10,38 +15,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Box<Habit> habitBox;
+  List<Image> navIcons = [];
+
+  int navBarIndex = 0;
+
+  final navItems = [
+    const Logs(),
+    const StatisticsScreen(),
+    const HistoryScreen(),
+    const SettingsScreen()
+  ];
 
   @override
   void initState() {
     super.initState();
-    Hive.openBox<Habit>('Habits');
-    habitBox = Hive.box<Habit>('Habits');
+    navIcons = [
+      for (var imageUrl in [
+        "images/home.png",
+        "images/stats.png",
+        "images/history.png",
+        "images/settings.png",
+      ])
+        Image.asset(imageUrl)
+    ];
   }
 
   @override
-  void dispose() {
-    habitBox.close();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    for (var navIcon in navIcons) {
+      precacheImage(navIcon.image, context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: Text(
-          'Habits',
-          style: Theme.of(context).textTheme.headline1,
-        ),
-        backgroundColor: Colors.transparent,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Icon(Icons.settings),
-          )
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xff6D38E0),
         onPressed: () {
@@ -51,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Icons.add,
           size: 35,
           semanticLabel: 'Add a log',
+          color: Colors.white,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -64,151 +74,97 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0,
           child: Padding(
             padding: const EdgeInsets.all(3.0),
-            child: BottomNavigationBar(
-                elevation: 0,
-                backgroundColor: Colors.transparent.withAlpha(0),
-                unselectedItemColor: Colors.white,
-                items: const [
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.local_gas_station), label: 'Logs'),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.history), label: 'History'),
-                ]),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavIcon(0),
+                _buildNavIcon(1, sizeChange: 5.0),
+                const SizedBox(width: 50.0),
+                _buildNavIcon(2),
+                _buildNavIcon(3, sizeChange: -5.0),
+              ],
+            ),
           ),
         ),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: habitBox.listenable(),
-        builder: (context, box, _) {
-          return ListView.builder(
-            itemCount: habitBox.length,
-            itemBuilder: (BuildContext context, int index) {
-              return HabitItem(habitBox.getAt(index)!);
-            },
-          );
-        },
+      body: SafeArea(child: navItems[navBarIndex]),
+    );
+  }
+
+  IconButton _buildNavIcon(index, {sizeChange = 0}) {
+    return IconButton(
+      onPressed: () {
+        setState(() {
+          navBarIndex = index;
+        });
+      },
+      icon: ColorFiltered(
+        colorFilter: ColorFilter.mode(
+            navBarIndex == index ? const Color(0xff2AEB8E) : Colors.white,
+            BlendMode.modulate),
+        child: navIcons[index],
       ),
+      iconSize: 45.0 + sizeChange,
     );
   }
 }
 
-class HabitItem extends StatefulWidget {
-  final Habit item;
-
-  const HabitItem(this.item, {Key? key}) : super(key: key);
+class Logs extends StatefulWidget {
+  const Logs({
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<HabitItem> createState() => _HabitItemState();
+  State<Logs> createState() => _LogsState();
 }
 
-class _HabitItemState extends State<HabitItem> {
-  late Box<Habit> habitBox;
+class _LogsState extends State<Logs> {
+  Box<Habit>? habitBox;
 
   @override
   void initState() {
     super.initState();
-    habitBox = Hive.box<Habit>('Habits');
+    initDb();
   }
 
-  @override
-  void dispose() {
-    habitBox.close();
-    super.dispose();
+  void initDb() async {
+    if (habitBox == null || !habitBox!.isOpen) {
+      await Hive.openBox<Habit>('Habits');
+      habitBox = Hive.box<Habit>('Habits');
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onLongPress: () {
-        showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) {
-              return Container(
-                height: 180,
-                padding: const EdgeInsets.all(25.0),
-                color: const Color(0xff343649),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.item.title,
-                      style: Theme.of(context).textTheme.headline2,
-                    ),
-                    Text(
-                      'Progress: 5 hours / 8 hours',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: Text('Edit',
-                                style: Theme.of(context).textTheme.headline3),
-                            style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 6.0),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0))),
-                          ),
-                        ),
-                        const SizedBox(width: 20.0),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              habitBox.delete(widget.item.key);
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              'Delete',
-                              style: Theme.of(context).textTheme.headline3,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                                primary: Colors.red,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 6.0),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0))),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              );
-            });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          color: const Color(0xffC0A4FF).withOpacity(.15),
-        ),
-        height: 60,
-        margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-        child: Row(
-          children: <Widget>[
-            Container(
-              width: 14.0,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    bottomLeft: Radius.circular(10.0)),
-                color: widget.item.accentColor,
+    if (habitBox == null) {
+      initDb();
+      return const CircularProgressBar();
+    }
+
+    return ValueListenableBuilder(
+      valueListenable: habitBox!.listenable(),
+      builder: (context, box, _) {
+        return Wrap(
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+              child: Text(
+                'Habits',
+                style: Theme.of(context).textTheme.headline1,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20.0),
-              child: Text(
-                widget.item.title,
-                style: Theme.of(context).textTheme.headline2,
-              ),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: habitBox!.length,
+              itemBuilder: (BuildContext context, int index) {
+                return HabitItem(habitBox!.getAt(index)!);
+              },
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -5,12 +5,14 @@ import 'package:path_provider/path_provider.dart';
 import 'models.dart';
 import 'create_habit_screen.dart';
 import 'home_screen.dart';
+import 'add_log_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Directory directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
   Hive.registerAdapter(HabitAdapter());
+  Hive.registerAdapter(LogAdapter());
   await Hive.openBox<Habit>('Habits');
   runApp(const MyHabits());
 }
@@ -25,7 +27,8 @@ class MyHabits extends StatelessWidget {
       initialRoute: '/home',
       routes: {
         '/home': (context) => const HomeScreen(),
-        '/create-habit': (context) => const CreateHabitScreen()
+        '/create-habit': (context) => const CreateHabitScreen(),
+        '/add-log': (context) => const AddLogScreen()
       },
       theme: ThemeData(
           brightness: Brightness.dark,

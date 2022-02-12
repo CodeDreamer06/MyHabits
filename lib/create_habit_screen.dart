@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myhabits/button.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'models.dart';
 import 'package:hive/hive.dart';
@@ -15,6 +16,7 @@ class CreateHabitScreen extends StatefulWidget {
 class _CreateHabitScreenState extends State<CreateHabitScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _goalController = TextEditingController();
 
   late Box<Habit> habitBox;
 
@@ -30,14 +32,12 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   @override
   void initState() {
     super.initState();
-    Hive.openBox<Habit>('Habits');
     habitBox = Hive.box<Habit>('Habits');
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    habitBox.close();
     super.dispose();
   }
 
@@ -68,21 +68,38 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                 const SizedBox(height: 20),
                 _buildGoalInputBox(),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Categories',
-                    style: Theme.of(context).textTheme.headline3,
-                  ),
-                ),
+                _buildLabelText('Categories'),
                 _buildCategoryChips(),
                 _buildColorPicker(),
                 const Spacer(),
-                _buildCreateButton(context),
+                Button(
+                    text: 'Create',
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        await habitBox.add(Habit(
+                            title: _nameController.text,
+                            accentColor: selectedColor,
+                            duration: Duration(
+                                hours: int.parse(_goalController.text)),
+                            goalType: goalType,
+                            categoryIndices: []));
+                        Navigator.pop(context);
+                      }
+                    }),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Padding _buildLabelText(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.headline3,
       ),
     );
   }
@@ -92,13 +109,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            "Name",
-            style: Theme.of(context).textTheme.headline3,
-          ),
-        ),
+        _buildLabelText('Name'),
         TextFormField(
           controller: _nameController,
           validator: (value) {
@@ -161,40 +172,6 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
             ]);
   }
 
-  Container _buildCreateButton(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10.0),
-      decoration: const BoxDecoration(boxShadow: [
-        BoxShadow(
-            color: Color(0xff1D224B),
-            spreadRadius: 5,
-            blurRadius: 5,
-            offset: Offset(0, 4))
-      ]),
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-            primary: const Color(0xff6D38E0),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0))),
-        child: const Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Text(
-            'Create',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            habitBox.add(
-                Habit(title: _nameController.text, accentColor: selectedColor));
-            Navigator.pop(context);
-          }
-        },
-      ),
-    );
-  }
-
   ListView _buildGoalInputBox() {
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
@@ -244,11 +221,13 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                         style: const TextStyle(color: Colors.white),
                         maxLength: 2,
                         buildCounter: null,
+                        // TODO: Add a validator
+                        controller: _goalController,
                         decoration: const InputDecoration(
                             fillColor: Color(0xff353251),
                             filled: true,
                             counterText: "",
-                            hintText: "ex. 5 hours",
+                            hintText: "your goal in hours",
                             contentPadding: EdgeInsets.only(right: 4.0),
                             hintStyle: TextStyle(color: Colors.white24),
                             border: InputBorder.none,
@@ -309,13 +288,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Color',
-              style: Theme.of(context).textTheme.headline3,
-            ),
-          ),
+          _buildLabelText('Color'),
           Wrap(
             children: categoryColors.map((color) {
               return InkWell(
