@@ -25,6 +25,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
     'Work',
     'Code',
   ];
+  bool _showNewChip = false;
 
   Color selectedColor = const Color(0xFFFE2C91);
   GoalType goalType = GoalType.target;
@@ -55,40 +56,32 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       appBar: appBar,
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          child: Container(
-            height: MediaQuery.of(context).size.height -
-                MediaQuery.of(context).padding.top -
-                appBar.preferredSize.height,
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildNameInputBox(),
-                const SizedBox(height: 20),
-                _buildGoalInputBox(),
-                const SizedBox(height: 20),
-                _buildLabelText('Categories'),
-                _buildCategoryChips(),
-                _buildColorPicker(),
-                const Spacer(),
-                Button(
-                    text: 'Create',
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        await habitBox.add(Habit(
-                            title: _nameController.text,
-                            accentColor: selectedColor,
-                            duration: Duration(
-                                hours: int.parse(_goalController.text)),
-                            goalType: goalType,
-                            categoryIndices: []));
-                        Navigator.pop(context);
-                      }
-                    }),
-              ],
-            ),
-          ),
+        child: ListView(
+          padding: const EdgeInsets.all(15.0),
+          shrinkWrap: true,
+          children: [
+            _buildNameInputBox(),
+            const SizedBox(height: 20),
+            _buildGoalInputBox(),
+            const SizedBox(height: 20),
+            _buildLabelText('Categories'),
+            _buildCategoryChips(),
+            _buildColorPicker(),
+            Button(
+                text: 'Create',
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    await habitBox.add(Habit(
+                        title: _nameController.text,
+                        accentColor: selectedColor,
+                        duration:
+                            Duration(hours: int.parse(_goalController.text)),
+                        goalType: goalType,
+                        categoryIndices: []));
+                    Navigator.pop(context);
+                  }
+                }),
+          ],
         ),
       ),
     );
@@ -162,10 +155,44 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                     ))
                 .toList() +
             [
+              _showNewChip
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(30.0)),
+                            fillColor: const Color(0xff6D38E0),
+                            filled: true,
+                            isDense: true),
+                      ),
+                      // child: Chip(
+                      //   label: const Text(
+                      //     "",
+                      //     style: TextStyle(
+                      //         color: Colors.white, fontWeight: FontWeight.w600),
+                      //   ),
+                      //   backgroundColor: const Color(0xff6D38E0),
+                      //   elevation: 6.0,
+                      //   padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      //   deleteIconColor: Colors.white,
+                      //   onDeleted: () {
+                      //     setState(() {
+                      //       _showNewChip = false;
+                      //     });
+                      //   },
+                      // ),
+                    )
+                  : const Padding(padding: EdgeInsets.zero),
               Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6.0),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        _showNewChip = true;
+                      });
+                    },
                     icon: const Icon(Icons.add_circle_rounded),
                     color: Colors.white,
                   ))
@@ -221,7 +248,12 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                         style: const TextStyle(color: Colors.white),
                         maxLength: 2,
                         buildCounter: null,
-                        // TODO: Add a validator
+                        validator: (value) {
+                          if (double.tryParse(value!) == null) {
+                            return 'Goal must be a number';
+                          }
+                          return null;
+                        },
                         controller: _goalController,
                         decoration: const InputDecoration(
                             fillColor: Color(0xff353251),

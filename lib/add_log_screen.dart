@@ -123,12 +123,6 @@ class _AddLogScreenState extends State<AddLogScreen> {
                           ];
                           habits.save();
                           Navigator.pop(context);
-                          // habit.logs.add(Log(
-                          //     dateTimeRange: DateTimeRange(
-                          //         start: DateTime.now(), end: DateTime.now()),
-                          //     mood: moodIndex,
-                          //     description: _descriptionBoxController.text));
-                          // habit.save();
                         }
                       })
                 ],

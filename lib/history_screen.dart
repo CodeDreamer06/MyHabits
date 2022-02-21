@@ -15,6 +15,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Box<Habit>? habitBox;
 
   List<Image> faces = [];
+  List<Log> logs = [];
 
   @override
   void initState() {
@@ -79,15 +80,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const SizedBox(height: 20.0),
           Expanded(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               child: ValueListenableBuilder(
                 valueListenable: habitBox!.listenable(),
                 builder: (context, box, _) {
                   return ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: habitBox!.getAt(0)!.logs.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _buildHistoryItem(index, context);
+                    itemCount: habitBox!.values.length,
+                    itemBuilder: (BuildContext context, int i) {
+                      logs = habitBox!.getAt(i)!.logs;
+                      return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: logs.length,
+                          itemBuilder: (BuildContext context, int j) {
+                            return _buildHistoryItem(
+                                habitBox!.getAt(i)!, logs[j], context);
+                          });
                     },
                   );
                 },
@@ -99,8 +109,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Container _buildHistoryItem(int index, BuildContext context) {
-    var habit = habitBox!.getAt(0)!.logs[index];
+  Container _buildHistoryItem(Habit habit, Log log, BuildContext context) {
+    print(log.startTime);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
@@ -111,12 +121,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
         children: <Widget>[
           Container(
             width: 14.0,
-            height: 90.0,
+            height: 100.0,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10.0),
                   bottomLeft: Radius.circular(10.0)),
-              color: habitBox!.getAt(0)!.accentColor,
+              color: habit.accentColor,
             ),
           ),
           Expanded(
@@ -130,19 +140,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        habitBox!.getAt(0)!.title,
+                        habit.title,
                         style: Theme.of(context).textTheme.headline3,
                       ),
-                      Text(
-                        habit.description,
-                        style: Theme.of(context).textTheme.bodyText1,
-                      ),
+                      log.description.isNotEmpty
+                          ? Text(
+                              log.description,
+                              style: Theme.of(context).textTheme.bodyText1,
+                            )
+                          : const SizedBox.shrink(),
                       Row(
                         children: [
                           Text(
-                            habit.endTime
+                            log.endTime
                                     .toLocal()
-                                    .difference(habit.startTime.toLocal())
+                                    .difference(log.startTime.toLocal())
                                     .inHours
                                     .toString() +
                                 ' hour',
@@ -150,18 +162,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                           SizedBox(
                             height: 35.0,
-                            child: faces
-                                .asMap()
-                                .entries
-                                .elementAt(habit.mood)
-                                .value,
+                            child:
+                                faces.asMap().entries.elementAt(log.mood).value,
                           )
                         ],
                       ),
                     ],
                   ),
                   Text(
-                    DateFormat("HH:MM").format(habit.startTime.toLocal()),
+                    DateFormat("HH:MM").format(log.startTime.toLocal()),
                     style: Theme.of(context).textTheme.headline2,
                   )
                 ],
